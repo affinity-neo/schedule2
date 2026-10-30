@@ -69,30 +69,6 @@ th{position:relative}.rz{position:absolute;top:0;right:0;width:7px;height:100%;c
 .vtab.on{border-bottom-color:var(--blue);background:transparent}
 .vtab:hover{border-radius:0;background:var(--hov)}
 .nv .lc .pill{box-sizing:border-box}
-
-/* Weekly planning: planned completion is separate from the real deadline */
-.week-intro{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px}
-.week-intro h2{font-size:19px;margin:0 0 4px}.week-intro p{margin:0;color:var(--mu);font-size:12px}
-.week-grid{display:grid;grid-template-columns:repeat(7,minmax(185px,1fr));gap:9px;align-items:start;overflow-x:auto;padding:2px 2px 14px}
-.week-day{background:var(--sf);border:1px solid var(--line);border-radius:9px;min-height:180px;padding:9px}
-.week-day.today{border:2px solid var(--blue);padding:8px}
-.week-day-head{display:flex;align-items:center;justify-content:space-between;gap:5px;margin-bottom:8px;font-weight:700}
-.week-day-head small{font-weight:400;color:var(--mu)}
-.week-task{border:1px solid var(--line);border-left:4px solid var(--blue);border-radius:7px;padding:8px;margin:7px 0;background:var(--sf2)}
-.week-task.done{opacity:.55}.week-task-title{font-weight:650;line-height:1.4;margin-bottom:5px;overflow-wrap:anywhere}
-.week-task-meta{font-size:11px;color:var(--mu);display:flex;gap:5px;flex-wrap:wrap;margin-bottom:6px}
-.week-task select,.week-task input{font:inherit;border:1px solid var(--line);border-radius:5px;background:var(--sf);color:var(--tx);padding:5px;min-width:0}
-.week-task select{width:100%;margin-top:5px;font-size:12px}
-.week-task input[type=date]{width:100%;font-size:11px}
-.week-bottom{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:12px}
-.week-panel{background:var(--sf);border:1px solid var(--line);border-radius:9px;padding:12px}
-.week-panel h3{margin:0 0 8px}
-.week-count{font-size:12px;color:var(--mu);font-weight:400}
-.focus-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
-.focus-card{background:var(--sf);border:1px solid var(--line);border-radius:9px;padding:12px;min-width:0}
-.focus-card h3{margin:0 0 8px}.focus-card .week-task{margin:6px 0}
-.week-empty{font-size:12px;color:var(--mu);padding:10px 4px}
-@media(max-width:700px){main{padding:10px 10px 30px}.week-grid{grid-template-columns:repeat(7,minmax(165px,1fr));}.week-bottom,.focus-list{grid-template-columns:1fr}.week-intro h2{font-size:17px}}
 </style></head><body>
 <header><div class="logo">Affinity<span>Neo</span></div><div class="headspacer"></div><button class="headbtn" id="themeBtn" onclick="theme()" title="테마 전환" aria-label="테마 전환">☾</button><button class="headbtn" id="syBtn" onclick="syncUI()" title="기기 동기화"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 18.5h11a4 4 0 0 0 .5-7.97A6.5 6.5 0 0 0 5.6 9.2a4.8 4.8 0 0 0 .9 9.3Z"/></svg><span class="btnlabel">동기화</span></button><input id="importFile" type="file" accept=".json" hidden onchange="importData(event)"></header>
 <main>
@@ -121,11 +97,9 @@ if((S.v||0)<4){S.tasks.forEach(t=>{if(t.company==='복스')t.company='북스'});
 S.labels=S.labels||{status:L0([['진행 전','#808080'],['자료 대기 중','#a25ddc'],['진행 중','#fdab3d'],['1차','#ff642e'],['2차','#e8a200'],['수정 중','#ffcb00'],['완료','#00c875',1]]),priority:L0([['긴급','#e2445c'],['높음','#fdab3d'],['보통','#579bfc'],['낮음','#808080']]),person:(S.people||['최선혜','사장님']).map((n,i)=>({n,c:PAL[(i*5+11)%PAL.length]}))};
 S.cols=S.cols||[{id:'status',name:'상태',type:'status',w:130},{id:'priority',name:'우선순위',type:'priority',w:120},{id:'person',name:'담당자',type:'person',w:130},{id:'due',name:'마감일',type:'due',w:170},{id:'memo',name:'메모',type:'text',w:220}];
 S.views=S.views||[{id:'v1',name:'오늘 확인',icon:'☀️',kind:'today'},{id:'v2',name:'메인 테이블',icon:'📋',kind:'table',cfg:newCfg()},{id:'v3',name:'완료 보드',icon:'✅',kind:'done'},{id:'v4',name:'비서 점검표',icon:'☑️',kind:'check'}];
-if(!S.views.some(v=>v.kind==='week'))S.views.splice(2,0,{id:'vweek',name:'이번 주 계획',icon:'',kind:'week'});
-if(!S.views.some(v=>v.kind==='focus'))S.views.splice(3,0,{id:'vfocus',name:'오늘 할 일',icon:'',kind:'focus'});
 S.views.forEach(v=>{if(v.cfg&&!Array.isArray(v.cfg.sorts))v.cfg.sorts=[]});if(!S.views.some(v=>v.kind==='calendar'))S.views.splice(Math.min(2,S.views.length),0,{id:'vcal',name:'캘린더',icon:'',kind:'calendar'});
 S.cur=S.cur||'v1';S.waitDays=S.waitDays||5;S.check=S.check||{items:CHK.map((r,i)=>({id:i+1,cycle:r[0],item:r[1],crit:r[2],note:r[3]})),done:{}};
-S.tasks.forEach(t=>{t.planDate=t.planDate||'';t.workType=t.workType||'긴 작업';t.subs=t.subs||[];t.waitSince=t.waitSince||'';t.nextRemind=t.nextRemind||'';t.reminds=t.reminds||0;t.doneAt=t.doneAt||'';t.cx=t.cx||{};t.memo=t.memo||'';if(!lf('status',t.status))t.status=lf('status','진행 전')?'진행 전':LB('status')[0].n;if(!lf('priority',t.priority))t.priority=LB('priority')[0].n;if(t.person&&!lf('person',t.person))LB('person').push({n:t.person,c:PAL[LB('person').length*5%16]});t.subs.forEach(s=>{if(!lf('status',s.status))s.status=LB('status')[0].n});if(!S.groups.some(g=>g.name===t.company))S.groups.push({name:t.company,color:'#808080'})});
+S.tasks.forEach(t=>{t.subs=t.subs||[];t.waitSince=t.waitSince||'';t.nextRemind=t.nextRemind||'';t.reminds=t.reminds||0;t.doneAt=t.doneAt||'';t.cx=t.cx||{};t.memo=t.memo||'';if(!lf('status',t.status))t.status=lf('status','진행 전')?'진행 전':LB('status')[0].n;if(!lf('priority',t.priority))t.priority=LB('priority')[0].n;if(t.person&&!lf('person',t.person))LB('person').push({n:t.person,c:PAL[LB('person').length*5%16]});t.subs.forEach(s=>{if(!lf('status',s.status))s.status=LB('status')[0].n});if(!S.groups.some(g=>g.name===t.company))S.groups.push({name:t.company,color:'#808080'})});
 if((S.v||0)<6)S.views.forEach(v=>{if(EMO.includes(v.icon))v.icon=''});S.subCols=S.subCols||[];S.subW=S.subW||{name:300,status:130,due:150,memo:220};S.nameW=S.nameW||320;if((S.v||0)<7){S.check={items:CHK.map((r,i)=>({id:i+1,cycle:r[0],item:r[1],crit:r[2],note:r[3]})),done:{}};S.cols=S.cols.filter(c=>c.id!=='wait'&&c.id!=='remind');S.views.forEach(v=>{if(v.cfg)v.cfg.hidden=(v.cfg.hidden||[]).filter(x=>x!=='wait'&&x!=='remind')})}S.v=7;save();lastSnap=snap();UN=[];RE=[]}
 const hay=t=>(t.task+' '+t.memo+' '+t.person+' '+t.company+' '+t.subs.map(s=>s.task+' '+s.memo).join(' ')).toLowerCase();
 function toast(m){let e=$('toast');e.textContent=m;e.style.display='block';clearTimeout(tt);tt=setTimeout(()=>e.style.display='none',2800)}
@@ -152,7 +126,7 @@ case 'gm':{let g=S.groups[a];return it(`renGroup(${a})`,'이름 변경')+`<div c
 case 'cm':{let c=S.cols.find(x=>x.id===a),bi=['status','priority','person','due','memo'].includes(a);return it(`colRen('${a}')`,'이름 변경')+it(`colMv('${a}',-1)`,'← 왼쪽으로 이동')+it(`colMv('${a}',1)`,'→ 오른쪽으로 이동')+it(`colHide('${a}')`,'이 보기에서 숨기기')+(bi?'':it(`colDel('${a}')`,'열 삭제','danger'))}
 case 'cadd':return it(`addCol('text')`,'텍스트 열')+it(`addCol('date')`,'날짜 열')+it(`addCol('num')`,'숫자 열');
 case 'vm':{let v=S.views.find(x=>x.id===a);return it(`viewEdit('${a}')`,'이름·아이콘 변경')+it(`viewMv('${a}',-1)`,'← 왼쪽으로 이동')+it(`viewMv('${a}',1)`,'→ 오른쪽으로 이동')+(v.kind==='table'?it(`viewDup('${a}')`,'복제'):'')+(S.views.length>1?it(`viewDel('${a}')`,'보기 삭제','danger'):'')}
-case 'vadd':return `<div class="ph">보기 추가</div>`+it(`viewAdd('table')`,'테이블 보기 (업무 목록)')+it(`viewAdd('week')`,'이번 주 계획')+it(`viewAdd('focus')`,'오늘 할 일')+it(`viewAdd('calendar')`,'마감일 캘린더')+it(`viewAdd('today')`,'오늘 확인')+it(`viewAdd('done')`,'완료 보드')+it(`viewAdd('check')`,'비서 점검표');
+case 'vadd':return `<div class="ph">보기 추가</div>`+it(`viewAdd('table')`,'테이블 보기 (업무 목록)')+it(`viewAdd('calendar')`,'마감일 캘린더')+it(`viewAdd('today')`,'오늘 확인')+it(`viewAdd('done')`,'완료 보드')+it(`viewAdd('check')`,'비서 점검표');
 case 'sadd':return it(`addSCol('text')`,'텍스트 열')+it(`addSCol('date')`,'날짜 열')+it(`addSCol('num')`,'숫자 열');
 case 'scm':return it(`renSCol('${a}')`,'이름 변경')+it(`delSCol('${a}')`,'열 삭제','danger');
 case 'bm':return S.groups.map((g,i)=>it(`bulkMove(${i})`,`<span class="dot" style="background:${g.color}"></span>${esc(g.name)}`)).join('');
@@ -166,7 +140,7 @@ function viewSave(id){let v=S.views.find(x=>x.id===id);v.name=$('vname').value.t
 function viewMv(id,d){closeP();let a=S.views,i=a.findIndex(x=>x.id===id),j=i+d;if(j<0||j>=a.length)return;[a[i],a[j]]=[a[j],a[i]];save();render()}
 function viewDup(id){closeP();let v=S.views.find(x=>x.id===id),n={...JSON.parse(JSON.stringify(v)),id:'v'+Date.now(),name:v.name+' 복사본'};S.views.splice(S.views.indexOf(v)+1,0,n);save();setView(n.id)}
 function viewDel(id){closeP();let v=S.views.find(x=>x.id===id);cf(`'${v.name}' 보기를 삭제할까요?\n(업무 데이터는 지워지지 않아요)`,()=>{S.views=S.views.filter(x=>x.id!==id);if(S.cur===id)S.cur=S.views[0].id;save();render()})}
-function viewAdd(kind){closeP();let d={table:['새 테이블',''],week:['이번 주 계획',''],focus:['오늘 할 일',''],calendar:['캘린더',''],today:['오늘 확인',''],done:['완료 보드',''],check:['비서 점검표','']}[kind],v={id:'v'+Date.now(),name:d[0],icon:d[1],kind};if(kind==='table')v.cfg=newCfg();S.views.push(v);S.cur=v.id;save();render();if(kind!=='calendar')viewEdit(v.id)}
+function viewAdd(kind){closeP();let d={table:['새 테이블',''],calendar:['캘린더',''],today:['오늘 확인',''],done:['완료 보드',''],check:['비서 점검표','']}[kind],v={id:'v'+Date.now(),name:d[0],icon:d[1],kind};if(kind==='table')v.cfg=newCfg();S.views.push(v);S.cur=v.id;save();render();if(kind!=='calendar')viewEdit(v.id)}
 function goKind(k){let v=S.views.find(x=>x.kind===k);v?setView(v.id):toast('해당 보기가 없어요. ＋ 보기 추가로 만들 수 있어요.')}
 function setCfg(k,v){cfg()[k]=v;closeP();save();render()}
 function sortToggle(key){let a=cfg().sorts||(cfg().sorts=[]),i=a.findIndex(x=>x.key===key);if(i>=0)a.splice(i,1);else a.push({key,dir:'asc'});cfg().sort='multi';save();render();if(P)showP()}
@@ -332,56 +306,9 @@ function syCopy(id){let e=$(id);e.select();try{navigator.clipboard.writeText(e.v
 function syncUI(){if(!SY){modal(`<h2><svg viewBox="0 0 24 24" style="width:20px;height:20px;vertical-align:middle;stroke:currentColor;fill:none;stroke-width:1.8;margin-right:6px" aria-hidden="true"><path d="M6.5 18.5h11a4 4 0 0 0 .5-7.97A6.5 6.5 0 0 0 5.6 9.2a4.8 4.8 0 0 0 .9 9.3Z"/></svg>기기 동기화</h2><p style="font-size:13px;line-height:1.6;margin:0 0 12px">컴퓨터·휴대폰 등 여러 기기에서 같은 보드를 쓰려면 한 번만 연결하세요. 연결 후에는 버튼을 누르지 않아도 <b>자동으로 실시간 반영</b>돼요. 데이터는 암호화되어 저장돼요.</p><details style="font-size:13px;line-height:1.7;margin-bottom:12px"><summary style="cursor:pointer;font-weight:600">Firebase 준비 방법 (처음 한 번만)</summary><ol style="margin:8px 0 8px 18px;padding:0"><li>console.firebase.google.com 접속 → 구글 로그인 → "프로젝트 추가" → 이름은 아무거나, 애널리틱스는 끄고 만들기</li><li>왼쪽 메뉴 "빌드 → Realtime Database" → "데이터베이스 만들기" → 위치는 아무거나 → <b>잠금 모드</b>로 시작</li><li>위쪽 "규칙" 탭 → 내용을 모두 지우고 아래 글을 붙여넣기 → "게시"</li><li>"데이터" 탭 맨 위 주소(https://…)를 복사해서 아래 칸에 붙여넣기</li></ol><input id="syRules" class="inp" readonly value="${esc('{"rules":{"boards":{"$id":{".read":true,".write":true}}}}')}" onclick="this.select()"><button style="margin-top:6px" onclick="syCopy('syRules')">규칙 복사</button></details><div style="display:flex;flex-direction:column;gap:10px"><input id="syUrl" class="inp" placeholder="Firebase 주소 (https://…firebasedatabase.app)"><button class="primary" onclick="syCreate()">① 이 기기의 데이터로 새로 시작</button><div style="border-top:1px solid var(--bd);padding-top:10px;font-size:13px">이미 다른 기기에서 시작했다면, 그 기기의 연결 코드를 붙여넣으세요. (Firebase 주소는 코드에 들어 있어요)</div><input id="syCodeIn" class="inp" placeholder="연결 코드 붙여넣기"><button onclick="syJoin()">② 코드로 연결 (이 기기 데이터는 클라우드 데이터로 바뀌어요)</button></div><div class="ma"><button onclick="closeM()">닫기</button></div>`);return}
 modal(`<h2><svg viewBox="0 0 24 24" style="width:20px;height:20px;vertical-align:middle;stroke:currentColor;fill:none;stroke-width:1.8;margin-right:6px" aria-hidden="true"><path d="M6.5 18.5h11a4 4 0 0 0 .5-7.97A6.5 6.5 0 0 0 5.6 9.2a4.8 4.8 0 0 0 .9 9.3Z"/></svg>기기 동기화</h2><p id="syInfo" style="font-size:13px;margin:0 0 12px"></p><div style="font-size:13px;margin-bottom:6px">연결 코드 (다른 기기의 "코드로 연결"에 붙여넣기 · 비밀번호처럼 보관하세요)</div><div style="display:flex;gap:8px"><input id="syShow" class="inp" readonly value="${esc(syCode())}" onclick="this.select()"><button onclick="syCopy('syShow')">복사</button></div><div style="display:flex;flex-direction:column;gap:8px;margin-top:14px"><button onclick="syncRun();toast('지금 확인했어요.')">지금 동기화</button><button onclick="syPrev()">동기화 직전 상태로 되돌리기</button><button onclick="syOff()">연결 끊기</button></div><div class="ma"><button onclick="closeM()">닫기</button></div>`);syStatus()}
 function syncInit(){try{SY=JSON.parse(localStorage.getItem('affinityneo_sync')||'null')}catch(e){SY=null}if(SY&&!SY.url){SY=null;localStorage.removeItem('affinityneo_sync')}syStatus();if(SY){syncRun();syStream()}setInterval(()=>{if(SY&&!document.hidden)syncRun()},20000);document.addEventListener('visibilitychange',()=>{if(!document.hidden&&SY)syncRun()});addEventListener('focus',()=>{if(SY)syncRun()});addEventListener('online',()=>{if(SY)syncRun()})}
-
-/* ---------- weekly planning ---------- */
-let weekCursor=new Date();
-const WORK_TYPES=['긴 작업','빠른 작업','위임','대기'];
-function weekStart(d){let x=new Date(d.getFullYear(),d.getMonth(),d.getDate());x.setDate(x.getDate()-((x.getDay()+6)%7));return x}
-function weekShift(n){weekCursor.setDate(weekCursor.getDate()+n*7);render()}
-function weekType(id,v){let t=find(id);if(!t)return;t.workType=v;save();render()}
-function weekPlan(id,v){let t=find(id);if(!t)return;t.planDate=v;save();render()}
-function weekStatus(id,v){let t=find(id);if(!t)return;setSt(t,v);save();render()}
-function weekCard(t){
- const done=isD(t),type=t.workType||'긴 작업',g=gc(t.company);
- return `<article class="week-task ${done?'done':''}" style="border-left-color:${g}">
-  <div class="week-task-title">${esc(t.task)}</div>
-  <div class="week-task-meta"><span>${esc(t.company)}</span><span>·</span><span>${esc(t.person||'담당 미정')}</span></div>
-  <div class="week-task-meta">${t.due?'실제 마감 '+esc(t.due):'실제 마감 미설정'}${t.due&&diff(t.due)<0?' · 지연':''}</div>
-  <label class="mu">작업 유형</label><select aria-label="작업 유형" onchange="weekType(${t.id},this.value)">${WORK_TYPES.map(x=>`<option ${x===type?'selected':''}>${x}</option>`).join('')}</select>
-  <label class="mu" style="display:block;margin-top:7px">계획 완료일</label><input aria-label="계획 완료일" type="date" value="${t.planDate||''}" onchange="weekPlan(${t.id},this.value)">
-  <select aria-label="업무 상태" onchange="weekStatus(${t.id},this.value)">${LB('status').map(x=>`<option ${x.n===t.status?'selected':''}>${esc(x.n)}</option>`).join('')}</select>
- </article>`;
-}
-function vWeek(){
- const start=weekStart(weekCursor),end=new Date(start);end.setDate(end.getDate()+6);
- const fmt=d=>`${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;
- const active=S.tasks.filter(t=>!isD(t)),days=['월','화','수','목','금','토','일'];
- let cells=days.map((day,i)=>{let d=new Date(start);d.setDate(d.getDate()+i);let key=iso(d),items=active.filter(t=>t.planDate===key).sort((a,b)=>({ '긴 작업':0,'빠른 작업':1,'위임':2,'대기':3}[a.workType]??0)-({'긴 작업':0,'빠른 작업':1,'위임':2,'대기':3}[b.workType]??0));return `<section class="week-day ${key===today()?'today':''}"><div class="week-day-head"><span>${day} <small>${d.getMonth()+1}/${d.getDate()}</small></span><small>${items.length}개</small></div>${items.map(weekCard).join('')||'<div class="week-empty">계획된 업무 없음</div>'}</section>`}).join('');
- let noPlan=active.filter(t=>!t.planDate||t.planDate<iso(start)||t.planDate>iso(end));
- let late=active.filter(t=>t.due&&diff(t.due)<0);
- return `<div class="box">
-  <div class="week-intro"><div><h2>이번 주 계획</h2><p>실제 마감일이 아니라, 내가 끝내기로 정한 날짜에 업무를 배치해요.</p></div>
-   <div class="calhead" style="margin:0"><button onclick="weekShift(-1)">‹</button><b>${fmt(start)} – ${fmt(end)}</b><button onclick="weekShift(1)">›</button><button onclick="weekCursor=new Date();render()">이번 주</button></div>
-  </div>
-  <div class="week-grid">${cells}</div>
-  <div class="week-bottom">
-   <section class="week-panel"><h3>아직 날짜를 정하지 않은 업무 <span class="week-count">${noPlan.length}개</span></h3>${noPlan.map(weekCard).join('')||'<div class="week-empty">모두 계획에 배치했어요.</div>'}</section>
-   <section class="week-panel"><h3>마감일이 지난 업무 <span class="week-count">${late.length}개</span></h3>${late.map(weekCard).join('')||'<div class="week-empty">지연된 업무가 없어요.</div>'}</section>
-  </div>
-  <p class="mu" style="margin:12px 2px 0">업무 제목·마감일 등 전체 정보는 ‘메인 테이블’에서 관리하고, 이 화면에서는 계획 완료일과 작업 유형만 정리하면 돼요.</p>
- </div>`;
-}
-function vFocus(){
- const active=S.tasks.filter(t=>!isD(t)),todayTasks=active.filter(t=>t.planDate===today()),long=todayTasks.filter(t=>(t.workType||'긴 작업')==='긴 작업'),quick=todayTasks.filter(t=>t.workType==='빠른 작업'),delegate=todayTasks.filter(t=>t.workType==='위임'),waiting=todayTasks.filter(t=>t.workType==='대기');
- const backlog=active.filter(t=>!t.planDate).length,renderGroup=(title,items,desc)=>`<section class="focus-card"><h3>${title} <span class="week-count">${items.length}개</span></h3>${desc?`<p class="mu">${desc}</p>`:''}${items.map(weekCard).join('')||'<div class="week-empty">해당 업무가 없어요.</div>'}</section>`;
- return `<div class="box"><div class="week-intro"><div><h2>오늘 할 일</h2><p>${today()} · 오늘 계획한 업무만 보여줘요. 계획에 없는 일은 새로 끼워 넣지 않아도 돼요.</p></div><button onclick="goKind('week')">이번 주 계획 보기</button></div>
- <div class="focus-list">${renderGroup('집중해서 할 일',long,'긴 작업은 오늘 1~2개만 핵심으로 잡아도 충분해요.')}${renderGroup('짧게 처리할 일',quick,'짧은 업무는 모아서 한 번에 처리해요.')}${renderGroup('다른 사람에게 맡긴 일',delegate,'직접 진행하지 말고, 전달·확인할 내용만 챙겨요.')}${renderGroup('답변·자료 대기',waiting,'내가 당장 처리할 일이 아니라면 계속 붙잡고 있지 않아도 돼요.')}</div>
- <p class="mu" style="margin:12px 2px 0">아직 계획하지 않은 업무 ${backlog}개 · 오늘 목록에 모두 넣을 필요는 없어요.</p>
- </div>`;
-}
-\n/* ---------- main ---------- */
+/* ---------- main ---------- */
 function render(){let v=V(),tb=v.kind==='table';renderTabs();$('tb').style.display=tb?'flex':'none';if(tb){updTb();if($('search').value!==v.cfg.q)$('search').value=v.cfg.q}
-$('content').innerHTML=({table:vTable,week:vWeek,focus:vFocus,calendar:vCalendar,today:vToday,done:vDone,check:vCheck})[v.kind]();updBar()}
+$('content').innerHTML=({table:vTable,calendar:vCalendar,today:vToday,done:vDone,check:vCheck})[v.kind]();updBar()}
 function theme(){let n=document.documentElement.dataset.theme==='dark'?'light':'dark';document.documentElement.dataset.theme=n;localStorage.setItem('affinityneo_theme',n);let b=$('themeBtn');if(b){b.textContent=n==='dark'?'☼':'☾';b.title=n==='dark'?'라이트 모드로 전환':'다크 모드로 전환';b.setAttribute('aria-label',b.title)}}
 function exportData(){let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(S,null,2)],{type:'application/json'}));a.download='AffinityNeo-업무백업.json';a.click();URL.revokeObjectURL(a.href)}
 function importData(e){let f=e.target.files[0];if(!f)return;let r=new FileReader();r.onload=()=>{try{let d=JSON.parse(r.result);if(Array.isArray(d))d={tasks:d};if(!Array.isArray(d.tasks))throw 0;localStorage.setItem('affinityneo_v3',JSON.stringify(d));load();syncTouch();render();toast('가져왔어요.')}catch(x){toast('파일 형식이 올바르지 않아요.')}};r.readAsText(f);e.target.value=''}
