@@ -42,7 +42,7 @@
     const output = document.getElementById("geminiResult"), urlInput = document.getElementById("geminiProxyUrl");
     const questionInput = document.getElementById("geminiQuestion");
     if (!button || !status || !output || !urlInput || !questionInput) return;
-    const endpoint = urlInput.value.trim().replace(/\\/+$/, "");
+    const endpoint = urlInput.value.trim().replace(/\/+$/, "");
     if (!/^https:\/\/[a-z0-9.-]+\.workers\.dev\/api\/gemini$/i.test(endpoint)) {
       status.textContent = "Cloudflare Worker 주소를 https://…workers.dev/api/gemini 형식으로 입력해 주세요.";
       urlInput.focus(); return;
