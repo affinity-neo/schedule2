@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>AffinityNeo 업무 관리</title><link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22%3E%3Crect x=%226%22 y=%228%22 width=%2252%22 height=%2249%22 rx=%227%22 fill=%22%230073ea%22/%3E%3Cpath d=%22M6 21h52%22 stroke=%22%23fff%22 stroke-width=%224%22/%3E%3Cpath d=%22M17 5v10M47 5v10%22 stroke=%22%230073ea%22 stroke-width=%224%22 stroke-linecap=%22round%22/%3E%3Cpath d=%22M15 30h8v7h-8zm13 0h8v7h-8zm13 0h8v7h-8zM15 43h8v7h-8zm13 0h20v3H28z%22 fill=%22%23fff%22/%3E%3C/svg%3E">
-<script>try{document.documentElement.dataset.theme=localStorage.getItem('affinityneo_theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light')}catch(e){}</script>
+<script>try{document.documentElement.dataset.theme=localStorage.getItem('affinityneo_theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');if(new URLSearchParams(location.search).has('embed'))document.documentElement.dataset.embed='true'}catch(e){}</script>
 <style>
 :root{--bg:#f5f6f8;--sf:#fff;--sf2:#f3f4f8;--line:#d8dbe6;--tx:#323338;--mu:#7b7f93;--hov:#f2f5fd;--sel:#cce5ff;--inp:#eaf3ff;--blue:#0073ea;--red:#e2445c;--green:#00c875;--orange:#fdab3d;--nv:#1d3253;color-scheme:light}
 [data-theme=dark]{--bg:#181b34;--sf:#292f4c;--sf2:#30385a;--line:#4b5176;--tx:#e6e9ef;--mu:#9aa0c0;--hov:#323a5e;--sel:#3a4f80;--inp:#3b4570;--nv:#3a4570;color-scheme:dark}
@@ -224,6 +224,15 @@ button{transition:background-color .14s ease,border-color .14s ease,color .14s e
  .dash-hero{padding:20px 17px}
 }
 
+
+/* Aria embedded mode: keep schedule2 functionality, let Aria own the app shell. */
+[data-embed=true], [data-embed=true] body{height:100%;min-height:100%;overflow:hidden}
+[data-embed=true] body{background:transparent}
+[data-embed=true] header{display:none!important}
+[data-embed=true] main{height:100dvh;min-height:0;max-width:none;margin:0;padding:14px 18px 20px;overflow:hidden}
+[data-embed=true] .stickytools{top:0}
+[data-embed=true] #content{min-height:0;overflow:auto}
+@media(max-width:720px){[data-embed=true] main{padding:8px 8px 14px}}
 </style></head><body>
 <header><div class="logo">Affinity<span>Neo</span></div><div class="headspacer"></div><button class="headbtn" id="themeBtn" onclick="theme()" title="테마 전환" aria-label="테마 전환">☾</button><button class="headbtn" id="syBtn" onclick="syncUI()" title="기기 동기화"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 18.5h11a4 4 0 0 0 .5-7.97A6.5 6.5 0 0 0 5.6 9.2a4.8 4.8 0 0 0 .9 9.3Z"/></svg><span class="btnlabel">동기화</span></button><button class="headbtn" id="geminiBtn" onclick="openGeminiPanel()" title="AI 일정 분석">✦ <span class="btnlabel">AI 분석</span></button></header>
 <main>
