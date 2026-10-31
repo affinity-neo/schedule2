@@ -324,7 +324,7 @@ return `<section class="grp">${head}<div class="gb" style="border-left-color:${g
 function setParked(v){showParked=!!v;render()}
 function toggleParked(){setParked(!showParked)}
 const isPinnedTask=t=>String(t.task||'').includes('📌');
-function fixedMinutesFor(date){const d=new Date(date+'T00:00:00').getDay(),WORK_START=9*60,WORK_END=18*60,ranges=(S.fixedEvents||[]).filter(e=>e.kind==='weekly'?(e.days||[]).includes(d):e.date===date).map(e=>({a:String(e.start||'').split(':').reduce((h,m)=>h*60+Number(m),0),b:String(e.end||'').split(':').reduce((h,m)=>h*60+Number(m),0)})).map(x=>({a:Math.max(WORK_START,x.a),b:Math.min(WORK_END,x.b)})).filter(x=>x.b>x.a).sort((x,y)=>x.a-y.a),total=0;let end=WORK_START;ranges.forEach(x=>{if(x.a>=end){total+=x.b-x.a;end=x.b}else if(x.b>end){total+=x.b-end;end=x.b}});return total}
+function fixedMinutesFor(date){const d=new Date(date+'T00:00:00').getDay(),WORK_START=9*60,WORK_END=18*60,ranges=(S.fixedEvents||[]).filter(e=>e.kind==='weekly'?(e.days||[]).includes(d):e.date===date).map(e=>({a:String(e.start||'').split(':').reduce((h,m)=>h*60+Number(m),0),b:String(e.end||'').split(':').reduce((h,m)=>h*60+Number(m),0)})).map(x=>({a:Math.max(WORK_START,x.a),b:Math.min(WORK_END,x.b)})).filter(x=>x.b>x.a).sort((x,y)=>x.a-y.a);let total=0,end=WORK_START;ranges.forEach(x=>{if(x.a>=end){total+=x.b-x.a;end=x.b}else if(x.b>end){total+=x.b-end;end=x.b}});return total}
 
 /* ---------- recurring and one-off time blocks ---------- */
 let fixedEditId=null;
