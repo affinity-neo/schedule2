@@ -152,7 +152,7 @@ td{height:29px!important;padding-top:0!important;padding-bottom:0!important}
 @media(max-width:720px){.gb td{height:54px}}
 .parked-toggle button{position:relative;z-index:2;pointer-events:auto;cursor:pointer;touch-action:manipulation;padding:7px 10px;border-radius:7px;background:var(--inp)}
 </style></head><body>
-<header><div class="logo">Affinity<span>Neo</span></div><div class="headspacer"></div><button class="headbtn" id="themeBtn" onclick="theme()" title="테마 전환" aria-label="테마 전환">☾</button><button class="headbtn" id="syBtn" onclick="syncUI()" title="기기 동기화"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 18.5h11a4 4 0 0 0 .5-7.97A6.5 6.5 0 0 0 5.6 9.2a4.8 4.8 0 0 0 .9 9.3Z"/></svg><span class="btnlabel">동기화</span></button></header>
+<header><div class="logo">Affinity<span>Neo</span></div><div class="headspacer"></div><button class="headbtn" id="themeBtn" onclick="theme()" title="테마 전환" aria-label="테마 전환">☾</button><button class="headbtn" id="syBtn" onclick="syncUI()" title="기기 동기화"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 18.5h11a4 4 0 0 0 .5-7.97A6.5 6.5 0 0 0 5.6 9.2a4.8 4.8 0 0 0 .9 9.3Z"/></svg><span class="btnlabel">동기화</span></button><button class="headbtn" id="geminiBtn" onclick="openGeminiPanel()" title="Gemini 일정 분석">✦ <span class="btnlabel">AI 분석</span></button></header>
 <main>
 <div class="stickytools"><div class="vt" id="vt"></div>
 <div class="tb" id="tb"><input class="search" id="search" placeholder="검색" oninput="cfg().q=this.value;render()"><button id="b-f" onclick="openP(event,'filter')"></button><button id="b-s" onclick="openP(event,'sort')"></button><button id="b-h" onclick="openP(event,'hide')"></button><button id="b-g" onclick="openP(event,'group')"></button><div class="abar" id="abar"><b id="selc">0개 선택</b><button data-need onclick="openP(event,'bm')">그룹 이동</button><button data-need class="danger" onclick="bulkDelete()">삭제</button><button data-need onclick="clearSel()">선택 해제</button></div></div></div>
@@ -466,4 +466,4 @@ function exportData(){let a=document.createElement('a');a.href=URL.createObjectU
 function importData(e){let f=e.target.files[0];if(!f)return;let r=new FileReader();r.onload=()=>{try{let d=JSON.parse(r.result);if(Array.isArray(d))d={tasks:d};if(!Array.isArray(d.tasks))throw 0;localStorage.setItem('affinityneo_v3',JSON.stringify(d));load();syncTouch();render();toast('가져왔어요.')}catch(x){toast('파일 형식이 올바르지 않아요.')}};r.readAsText(f);e.target.value=''}
 $('themeBtn').textContent=document.documentElement.dataset.theme==='dark'?'☼':'☾';$('themeBtn').title=document.documentElement.dataset.theme==='dark'?'라이트 모드로 전환':'다크 모드로 전환';
 load();render();syncInit();
-</script></body></html>
+</script><script src="gemini.js"></script></body></html>
