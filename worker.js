@@ -55,7 +55,7 @@ export default {
       const messages=[{role:"system",content:system}].concat(history.filter(m=>m.content!==question),[{role:"user",content:userContext}]);
       const low=env.OPENROUTER_LOW_MODEL||LOW_MODEL;
       let raw=await callModel(low,messages,env.OPENROUTER_API_KEY),parsed=extractJson(raw),used=low,escalated=false;
-      if(!parsed||parsed.complex===true||Number(parsed.confidence)<0.78) {
+      if(!parsed||parsed.complex===true||!Number.isFinite(Number(parsed.confidence))||Number(parsed.confidence)<0.78) {
         const high=env.OPENROUTER_HIGH_MODEL||HIGH_MODEL;
         try {
           const improved=await callModel(high,messages,env.OPENROUTER_API_KEY),candidate=extractJson(improved);
